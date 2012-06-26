@@ -93,8 +93,8 @@ public class PriamConfiguration implements IConfiguration
     private final String INSTANCE_TYPE = SystemUtils.getDataFromUrl("http://169.254.169.254/latest/meta-data/instance-type");
     private static String ASG_NAME = System.getenv("ASG_NAME");
     private static String REGION = System.getenv("EC2_REGION");
-    
-    // Defaults 
+
+    // Defaults
     private final String DEFAULT_CLUSTER_NAME = "cass_cluster";
     private final String DEFAULT_DATA_LOCATION = "/var/lib/cassandra/data";
     private final String DEFAULT_COMMIT_LOG_LOCATION = "/var/lib/cassandra/commitlog";
@@ -104,10 +104,10 @@ public class PriamConfiguration implements IConfiguration
 
     // rpm based. Can be modified for tar based.
     private final String DEFAULT_CASS_HOME_DIR = "/etc/cassandra";
-    private final String DEFAULT_CASS_START_SCRIPT = "/etc/init.d/cassandra start";
-    private final String DEFAULT_CASS_STOP_SCRIPT = "/etc/init.d/cassandra stop";
+    private final String DEFAULT_CASS_START_SCRIPT = "sv start cassandra";
+    private final String DEFAULT_CASS_STOP_SCRIPT = "sv stop cassandra";
     private final String DEFAULT_BACKUP_LOCATION = "backup";
-    private final String DEFAULT_BUCKET_NAME = "cassandra-archive";
+    private final String DEFAULT_BUCKET_NAME = "knewton-staging-cassandra-archive";
     private String DEFAULT_AVAILABILITY_ZONES = "";
 
     private final String DEFAULT_MAX_DIRECT_MEM = "50G";
@@ -149,12 +149,21 @@ public class PriamConfiguration implements IConfiguration
     public void intialize()
     {
         setupEnvVars();
+        logger.info(String.format("setupEnvVars completed"));
         setDefaultRACList(REGION);
+        logger.info(String.format("setDefaultRACList completed"));
         populateProps();
+        logger.info(String.format("populateProps completed"));
         SystemUtils.createDirs(getBackupCommitLogLocation());
+        logger.info(String.format("createDirs completed"));
+        SystemUtils.createDirs(getBackupCommitLogLocation());
+        logger.info(String.format("createDirs completed"));
         SystemUtils.createDirs(getCommitLogLocation());
+        logger.info(String.format("createDirs completed"));
         SystemUtils.createDirs(getCacheLocation());
+        logger.info(String.format("createDirs completed"));
         SystemUtils.createDirs(getDataFileLocation());
+        logger.info(String.format("createDirs completed"));
     }
 
     private void setupEnvVars()
@@ -196,14 +205,19 @@ public class PriamConfiguration implements IConfiguration
     }
 
     /**
-     * Get the fist 3 available zones in the region 
+    * Get the fist 3 available zones in the region
      */
     public void setDefaultRACList(String region){
         AmazonEC2 client = new AmazonEC2Client(new BasicAWSCredentials(provider.getAccessKeyId(), provider.getSecretAccessKey()));
+        logger.info(String.format("Client connecting with set Id: %s, Key %s", provider.getAccessKeyId(), provider.getSecretAccessKey()));
         client.setEndpoint("ec2." + region + ".amazonaws.com");
+        logger.info(String.format("Setting the endpoint to ec2." + region + ".amazonaws.com"));
         DescribeAvailabilityZonesResult res = client.describeAvailabilityZones();
-        List<String> zone = Lists.newArrayList(); 
+        logger.info(String.format("Described the availability zones"));
+        // http://docs.amazonwebservices.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/ec2/model/AvailabilityZone.html
+        List<String> zone = Lists.newArrayList();
         for(AvailabilityZone reg : res.getAvailabilityZones()){
+            logger.info(String.format("AZ: %s: ", reg.getZoneName(), reg.getState()));
             if( reg.getState().equals("available") )
                 zone.add(reg.getZoneName());
             if( zone.size() == 3)
@@ -485,11 +499,11 @@ public class PriamConfiguration implements IConfiguration
     {
         return config.getProperty(CONFIG_ASG_NAME, "");
     }
-    
+
     @Override
     public String getACLGroupName()
     {
-    	return config.getProperty(CONFIG_ACL_GROUP_NAME, this.getAppName());
+        return config.getProperty(CONFIG_ACL_GROUP_NAME, this.getAppName());
     }
 
     @Override
