@@ -128,12 +128,16 @@ public class SystemUtils
      */
     public static void cleanupDir(String dirPath, List<String> childdirs) throws IOException
     {
-        if (childdirs == null || childdirs.size() == 0)
+        if (childdirs == null || childdirs.size() == 0) {
             FileUtils.cleanDirectory(new File(dirPath));
+            logger.info(String.format("Cleaning up %s", dirPath));
+        }
         else
         {
-            for (String cdir : childdirs)
+            for (String cdir : childdirs) {
+                logger.info(String.format("Cleaning up %s", dirPath));
                 FileUtils.cleanDirectory(new File(dirPath + "/" + cdir));
+            }
         }
     }
 

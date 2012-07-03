@@ -44,7 +44,7 @@ public class CassandraConfig
         {
             if (CollectionUtils.isNotEmpty(priamServer.getId().getSeeds()))
                 return Response.ok(StringUtils.join(priamServer.getId().getSeeds(), ',')).build();
-            logger.error("Cannot find the Seeds " + priamServer.getId().getSeeds());
+            logger.error("Cannot find the Seeds (all nodes not up?)" + priamServer.getId().getSeeds());
         }
         catch (Exception e)
         {

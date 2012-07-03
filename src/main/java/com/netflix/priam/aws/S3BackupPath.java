@@ -122,7 +122,7 @@ public class S3BackupPath extends AbstractBackupPath
         buff.append(match(start, end));
         return buff.toString();
     }
-    
+
     @Override
     public String clusterPrefix(String location)
     {

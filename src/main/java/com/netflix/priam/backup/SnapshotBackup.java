@@ -26,7 +26,7 @@ import com.netflix.priam.utils.RetryableCallable;
 public class SnapshotBackup extends AbstractBackup
 {
     public static String JOBNAME = "SnapshotBackup";
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SnapshotBackup.class);
     private final MetaData metaData;
 
@@ -42,6 +42,7 @@ public class SnapshotBackup extends AbstractBackup
     {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         String snapshotName = pathFactory.get().getFormat().format(cal.getTime());
+        logger.info(String.format("snapshotName: %s", snapshotName));
         try
         {
             logger.info("Starting snapshot " + snapshotName);
@@ -49,17 +50,30 @@ public class SnapshotBackup extends AbstractBackup
             // Collect all snapshot dir's under keyspace dir's
             List<AbstractBackupPath> bps = Lists.newArrayList();
             File dataDir = new File(config.getDataFileLocation());
+            logger.info(String.format("SnapshotBackup.execute dataDir: %s", dataDir));
             for (File keyspaceDir : dataDir.listFiles())
             {
+                logger.info(String.format("keyspaceDir: %s, class: %s, name: %s", keyspaceDir, keyspaceDir.getClass(), keyspaceDir.getPath()));
                 for (File columnFamilyDir : keyspaceDir.listFiles())
                 {
                     File snpDir = new File(columnFamilyDir, "snapshots");
-                    if (!isValidBackupDir(keyspaceDir, columnFamilyDir, snpDir))
+                    logger.info(String.format("Trying columnFamilyDir: %s, snpDir: %s", columnFamilyDir, snpDir));
+                    if(!snpDir.isDirectory() && !snpDir.exists()) {
+                        logger.debug(String.format("doesn't exist or isn't a directory: snpDir: %s", snpDir));
+                    }
+                    if (!isValidBackupDir(keyspaceDir, columnFamilyDir, snpDir)) {
+                        logger.debug(String.format("notvalid: ksDir: %s, cfDir: %s, snpDir: %s", keyspaceDir, columnFamilyDir, snpDir));
                         continue;
+                    } else {
+                        logger.info(String.format("Passed the sniff test ksDir: %s, cfDir: %s, snpDir: %s", keyspaceDir, columnFamilyDir, snpDir));
+                    }
                     File snapshotDir = getValidSnapshot(columnFamilyDir, snpDir, snapshotName);
+                    logger.info(String.format("Valid snapshot found, adding snapshotDir: %s", snapshotDir));
                     // Add files to this dir
-                    if (null != snapshotDir)
+                    if (null != snapshotDir) {
                         bps.addAll(upload(snapshotDir, BackupFileType.SNAP));
+                        logger.info(String.format("snapshotDir: %s",snapshotDir));
+                    }
                 }
             }
             // Upload meta file
@@ -82,8 +96,12 @@ public class SnapshotBackup extends AbstractBackup
     private File getValidSnapshot(File columnFamilyDir, File snpDir, String snapshotName)
     {
         for (File snapshotDir : snpDir.listFiles())
-            if (snapshotDir.getName().matches(snapshotName))
+            if (snapshotDir.getName().matches(snapshotName)) {
+                logger.debug(String.format("getValidSnapshot: OK snapshotDir: %s, cFDir: %s, snpDir: %s, snapshotName: %s", snapshotDir, columnFamilyDir, snpDir, snapshotName));
                 return snapshotDir;
+            } else {
+                logger.debug(String.format("getValidSnapshot: Invalid: cFDir: %s, snpDir: %s, snapshotName: %s", columnFamilyDir, snpDir, snapshotName));
+            }
         return null;
     }
 

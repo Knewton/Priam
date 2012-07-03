@@ -96,9 +96,13 @@ public class PriamConfiguration implements IConfiguration
 
     // Defaults
     private final String DEFAULT_CLUSTER_NAME = "cass_cluster";
-    private final String DEFAULT_DATA_LOCATION = "/var/lib/cassandra/data";
-    private final String DEFAULT_COMMIT_LOG_LOCATION = "/var/lib/cassandra/commitlog";
-    private final String DEFAULT_CACHE_LOCATION = "/var/lib/cassandra/saved_caches";
+    //    private final String DEFAULT_DATA_LOCATION = "/var/lib/cassandra/data";
+    //    private final String DEFAULT_COMMIT_LOG_LOCATION = "/var/lib/cassandra/commitlog";
+    //    private final String DEFAULT_CACHE_LOCATION = "/var/lib/cassandra/saved_caches";
+    private final String DEFAULT_DATA_LOCATION = "/mnt/data/db";
+    private final String DEFAULT_COMMIT_LOG_LOCATION = "/mnt/commitlog";
+    private final String DEFAULT_CACHE_LOCATION = "/mnt/saved_caches";
+    // XXX: Another case of a mis-spelling going into production -PN
     private final String DEFULT_ENDPOINT_SNITCH = "org.apache.cassandra.locator.Ec2Snitch";
     private final String DEFAULT_SEED_PROVIDER = "com.netflix.priam.cassandra.NFSeedProvider";
 
@@ -147,11 +151,17 @@ public class PriamConfiguration implements IConfiguration
 
     @Override
     public void intialize()
+    // XXX: WHaaaaaaaaaaaaa?  Why mis-spell "initialize"???  And then
+    // release it?
     {
         setupEnvVars();
         logger.info(String.format("setupEnvVars completed"));
         setDefaultRACList(REGION);
         logger.info(String.format("setDefaultRACList completed"));
+        List<String> r_list = getRacs();
+        for(String rac : r_list) {
+            logger.info(String.format("rac (configured az?): %s: ", rac));
+        }
         populateProps();
         logger.info(String.format("populateProps completed"));
         SystemUtils.createDirs(getBackupCommitLogLocation());
@@ -174,9 +184,11 @@ public class PriamConfiguration implements IConfiguration
         if (StringUtils.isBlank(REGION))
             REGION = RAC.substring(0, RAC.length() - 1);
         ASG_NAME = StringUtils.isBlank(ASG_NAME) ? System.getProperty("ASG_NAME") : ASG_NAME;
-        if (StringUtils.isBlank(ASG_NAME))
+        if (StringUtils.isBlank(ASG_NAME)) {
             ASG_NAME = populateASGName(REGION, INSTANCE_ID);
+        }
         logger.info(String.format("REGION set to %s, ASG Name set to %s", REGION, ASG_NAME));
+
     }
 
     /**
@@ -218,8 +230,10 @@ public class PriamConfiguration implements IConfiguration
         List<String> zone = Lists.newArrayList();
         for(AvailabilityZone reg : res.getAvailabilityZones()){
             logger.info(String.format("AZ: %s: ", reg.getZoneName(), reg.getState()));
-            if( reg.getState().equals("available") )
+            if( reg.getState().equals("available") ) {
                 zone.add(reg.getZoneName());
+                logger.info(String.format("Adding the zone %s", reg.getZoneName()));
+            }
             if( zone.size() == 3)
                 break;
         }
@@ -235,7 +249,13 @@ public class PriamConfiguration implements IConfiguration
         config.put(CONFIG_ASG_NAME, ASG_NAME);
         config.put(CONFIG_REGION_NAME, REGION);
         String nextToken = null;
-        String appid = ASG_NAME.lastIndexOf('-') > 0 ? ASG_NAME.substring(0, ASG_NAME.indexOf('-')): ASG_NAME;
+        // XXX changing magic app/region/whatver splitter from "-" to
+        // something else because "-" is used by cloudformation
+        // willy-nilly.  We're going to have to build this config
+        // in chef.
+        // XXX using "+" instead of "-" for separating region info
+        // from ASG_NAME which is also the appid
+        String appid = ASG_NAME.lastIndexOf('+') > 0 ? ASG_NAME.substring(0, ASG_NAME.indexOf('+')): ASG_NAME;
         logger.info(String.format("appid used to fetch properties is: %s",appid));
         do
         {
@@ -400,6 +420,11 @@ public class PriamConfiguration implements IConfiguration
     @Override
     public String getAppName()
     {
+        if (System.getProperty(CONFIG_CLUSTER_NAME) != null) {
+            logger.debug(String.format("cluster name from System: %s", System.getProperty(CONFIG_CLUSTER_NAME)));
+            return System.getProperty(CONFIG_CLUSTER_NAME);
+        }
+        logger.debug(String.format("cluster name from config is: %s", System.getProperty(CONFIG_CLUSTER_NAME)));
         return config.getProperty(CONFIG_CLUSTER_NAME, DEFAULT_CLUSTER_NAME);
     }
 
@@ -412,7 +437,9 @@ public class PriamConfiguration implements IConfiguration
     @Override
     public List<String> getRacs()
     {
-        return config.getList(CONFIG_AVAILABILITY_ZONES, DEFAULT_AVAILABILITY_ZONES);
+        // XXX: this mandates -Dpriam.zones.available be set
+        return Arrays.asList(System.getProperty(CONFIG_AVAILABILITY_ZONES).split(","));
+        // return config.getList(CONFIG_AVAILABILITY_ZONES, DEFAULT_AVAILABILITY_ZONES);
     }
 
     @Override
@@ -588,6 +615,11 @@ public class PriamConfiguration implements IConfiguration
 
         public List<String> getList(String prop)
         {
+            if (System.getProperty(prop) != null) {
+                logger.info(String.format("prop: %s fetched via system",prop));
+                return Arrays.asList(System.getProperty(prop).split(","));
+            }
+
             if (getProperty(prop) == null)
                 return Lists.newArrayList();
             return Arrays.asList(getProperty(prop).split(","));
@@ -595,6 +627,10 @@ public class PriamConfiguration implements IConfiguration
 
         public List<String> getList(String prop, String defaultValue)
         {
+            if (System.getProperty(prop) != null) {
+                logger.info(String.format("prop: %s fetched via system",prop));
+                return Arrays.asList(System.getProperty(prop).split(","));
+            }
             if (getProperty(prop) == null)
                 return Lists.newArrayList(defaultValue.split(","));
             return getList(prop);
