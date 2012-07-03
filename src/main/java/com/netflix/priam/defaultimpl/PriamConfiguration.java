@@ -99,9 +99,12 @@ public class PriamConfiguration implements IConfiguration
     //    private final String DEFAULT_DATA_LOCATION = "/var/lib/cassandra/data";
     //    private final String DEFAULT_COMMIT_LOG_LOCATION = "/var/lib/cassandra/commitlog";
     //    private final String DEFAULT_CACHE_LOCATION = "/var/lib/cassandra/saved_caches";
-    private final String DEFAULT_DATA_LOCATION = "/mnt/data/db";
-    private final String DEFAULT_COMMIT_LOG_LOCATION = "/mnt/commitlog";
-    private final String DEFAULT_CACHE_LOCATION = "/mnt/saved_caches";
+    // If cassandra's system tablespace data files are in
+    //    /mnt/cassandra/data/db/cassandra/system, then
+    //    DEFAULT_DATA_LOCATION should be where?
+    private final String DEFAULT_DATA_LOCATION = "/mnt/data/db/cassandra";
+    private final String DEFAULT_COMMIT_LOG_LOCATION = "/mnt/data/commitlog";
+    private final String DEFAULT_CACHE_LOCATION = "/var/lib/cassandra/saved_caches";
     // XXX: Another case of a mis-spelling going into production -PN
     private final String DEFULT_ENDPOINT_SNITCH = "org.apache.cassandra.locator.Ec2Snitch";
     private final String DEFAULT_SEED_PROVIDER = "com.netflix.priam.cassandra.NFSeedProvider";

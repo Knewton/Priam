@@ -29,26 +29,26 @@ public abstract class AbstractRestore extends Task
     // TODO fix the magic number of 1000 => the idea of 80% of 1000 files limit per s3 query
     protected static final FifoQueue<AbstractBackupPath> tracker = new FifoQueue<AbstractBackupPath>(800);
     private AtomicInteger count = new AtomicInteger();
-    
+
     protected IConfiguration config;
     protected ThreadPoolExecutor executor;
-    
+
     @Inject
     protected IBackupFileSystem fs;
     public static BigInteger restoreToken;
-    
+
     protected final Sleeper sleeper;
-    
+
     public AbstractRestore(IConfiguration config, String name, Sleeper sleeper)
     {
         super(config);
         this.config = config;
         this.sleeper = sleeper;
-        executor = new JMXConfigurableThreadPoolExecutor(config.getMaxBackupDownloadThreads(), 
-                                                         1000, 
-                                                         TimeUnit.MILLISECONDS, 
-                                                         new LinkedBlockingQueue<Runnable>(), 
-                                                         new NamedThreadFactory(name), 
+        executor = new JMXConfigurableThreadPoolExecutor(config.getMaxBackupDownloadThreads(),
+                                                         1000,
+                                                         TimeUnit.MILLISECONDS,
+                                                         new LinkedBlockingQueue<Runnable>(),
+                                                         new NamedThreadFactory(name),
                                                          name);
         executor.allowCoreThreadTimeOut(true);
     }
@@ -79,7 +79,7 @@ public abstract class AbstractRestore extends Task
             @Override
             public Integer retriableCall() throws Exception
             {
-                logger.info("Downloading file: " + path);
+                logger.info(String.format("Downloading file: '%s' to location '%s'", path, restoreLocation));
                 fs.download(path, new FileOutputStream(restoreLocation));
                 tracker.adjustAndAdd(path);
                 // TODO: fix me -> if there is exception the why hang?
@@ -87,7 +87,7 @@ public abstract class AbstractRestore extends Task
             }
         });
     }
-    
+
     protected void waitToComplete()
     {
         while (count.get() != 0)

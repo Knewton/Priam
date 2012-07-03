@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.io.util.RandomAccessReader;
 import org.apache.commons.lang.StringUtils;
@@ -21,6 +24,7 @@ public abstract class AbstractBackupPath implements Comparable<AbstractBackupPat
     public static final SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
     public static final char PATH_SEP = File.separatorChar;
     public static final Pattern clPattern = Pattern.compile(".*CommitLog-(\\d{13}).log");
+    private static final Logger logger = LoggerFactory.getLogger(AbstractBackupPath.class);
 
     public static enum BackupFileType
     {
@@ -73,11 +77,16 @@ public abstract class AbstractBackupPath implements Comparable<AbstractBackupPat
         if (type != BackupFileType.META && type != BackupFileType.CL)
             this.keyspace = elements[0];
         if (type == BackupFileType.SNAP)
-            time = DAY_FORMAT.parse(elements[3]);
+            // This didn't work for me, try up one element?
+            // time = DAY_FORMAT.parse(elements[3]);
+            time = DAY_FORMAT.parse(elements[2]);
         if (type == BackupFileType.SST || type == BackupFileType.CL)
             time = new Date(file.lastModified());
         this.fileName = file.getName();
         this.size = file.length();
+        logger.info(String.format("this.baseDir is %s", this.baseDir));
+        logger.info(String.format("this.fileName is %s", this.fileName));
+
     }
 
     /**
@@ -116,7 +125,7 @@ public abstract class AbstractBackupPath implements Comparable<AbstractBackupPat
     {
         return getRemotePath().compareTo(o.getRemotePath());
     }
-    
+
     @Override
     public boolean equals(Object obj)
     {
@@ -136,16 +145,16 @@ public abstract class AbstractBackupPath implements Comparable<AbstractBackupPat
     public abstract void parseRemote(String remoteFilePath);
 
     /**
-     *  Parses paths with just token prefixes 
+     *  Parses paths with just token prefixes
      */
     public abstract void parsePartialPrefix(String remoteFilePath);
 
     /**
-     * Provides a common prefix that matches all objects that fall between 
-     * the start and end time 
+     * Provides a common prefix that matches all objects that fall between
+     * the start and end time
      */
     public abstract String remotePrefix(Date start, Date end, String location);
-    
+
     /**
      * Provides the cluster prefix
      */

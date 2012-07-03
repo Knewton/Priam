@@ -51,31 +51,49 @@ public class SnapshotBackup extends AbstractBackup
             List<AbstractBackupPath> bps = Lists.newArrayList();
             File dataDir = new File(config.getDataFileLocation());
             logger.info(String.format("SnapshotBackup.execute dataDir: %s", dataDir));
-            for (File keyspaceDir : dataDir.listFiles())
-            {
-                logger.info(String.format("keyspaceDir: %s, class: %s, name: %s", keyspaceDir, keyspaceDir.getClass(), keyspaceDir.getPath()));
-                for (File columnFamilyDir : keyspaceDir.listFiles())
-                {
-                    File snpDir = new File(columnFamilyDir, "snapshots");
-                    logger.info(String.format("Trying columnFamilyDir: %s, snpDir: %s", columnFamilyDir, snpDir));
-                    if(!snpDir.isDirectory() && !snpDir.exists()) {
-                        logger.debug(String.format("doesn't exist or isn't a directory: snpDir: %s", snpDir));
-                    }
-                    if (!isValidBackupDir(keyspaceDir, columnFamilyDir, snpDir)) {
-                        logger.debug(String.format("notvalid: ksDir: %s, cfDir: %s, snpDir: %s", keyspaceDir, columnFamilyDir, snpDir));
-                        continue;
-                    } else {
-                        logger.info(String.format("Passed the sniff test ksDir: %s, cfDir: %s, snpDir: %s", keyspaceDir, columnFamilyDir, snpDir));
-                    }
-                    File snapshotDir = getValidSnapshot(columnFamilyDir, snpDir, snapshotName);
-                    logger.info(String.format("Valid snapshot found, adding snapshotDir: %s", snapshotDir));
-                    // Add files to this dir
-                    if (null != snapshotDir) {
-                        bps.addAll(upload(snapshotDir, BackupFileType.SNAP));
-                        logger.info(String.format("snapshotDir: %s",snapshotDir));
-                    }
+            // This logic looks broken to me since it can never find
+            // dataDir/keyspaceDir/snapshot.  Try an alternative
+
+            for (File keyspaceDir : dataDir.listFiles()) {
+                File snpDir = new File(keyspaceDir, "snapshots");
+                if (!snpDir.isDirectory() && !snpDir.exists()) {
+                    logger.debug(String.format("doesn't exist or isn't a directory: snpDir: %s", snpDir));
+                    continue;
+                }
+                File snapshotDir = getValidSnapshot(keyspaceDir, snpDir, snapshotName);
+                logger.info(String.format("Valid snapshot found, adding snapshotDir: %s", snapshotDir));
+                // Add files to this dir
+                if (null != snapshotDir) {
+                    bps.addAll(upload(snapshotDir, BackupFileType.SNAP));
+                    logger.info(String.format("snapshotDir: %s",snapshotDir));
                 }
             }
+            // for (File keyspaceDir : dataDir.listFiles())
+            // {
+            //     logger.info(String.format("keyspaceDir: %s, class: %s, name: %s", keyspaceDir, keyspaceDir.getClass(), keyspaceDir.getPath()));
+            //     for (File columnFamilyDir : keyspaceDir.listFiles())
+            //     {
+            //         File snpDir = new File(columnFamilyDir, "snapshots");
+            //         logger.debug(String.format("Trying columnFamilyDir: %s, snpDir: %s", columnFamilyDir, snpDir));
+            //         if(!snpDir.isDirectory() && !snpDir.exists()) {
+            //             logger.debug(String.format("doesn't exist or isn't a directory: snpDir: %s", snpDir));
+            //         }
+            //         if (!isValidBackupDir(keyspaceDir, columnFamilyDir, snpDir)) {
+            //             logger.debug(String.format("notvalid: ksDir: %s, cfDir: %s, snpDir: %s", keyspaceDir, columnFamilyDir, snpDir));
+            //             continue;
+            //         } else {
+            //             logger.info(String.format("Passed the sniff test ksDir: %s, cfDir: %s, snpDir: %s", keyspaceDir, columnFamilyDir, snpDir));
+            //         }
+            //         File snapshotDir = getValidSnapshot(columnFamilyDir, snpDir, snapshotName);
+            //         logger.info(String.format("Valid snapshot found, adding snapshotDir: %s", snapshotDir));
+            //         // Add files to this dir
+            //         if (null != snapshotDir) {
+            //             bps.addAll(upload(snapshotDir, BackupFileType.SNAP));
+            //             logger.info(String.format("snapshotDir: %s",snapshotDir));
+            //         }
+            //     }
+            // }
+
             // Upload meta file
             metaData.set(bps, snapshotName);
             logger.info("Snapshot upload complete for " + snapshotName);
