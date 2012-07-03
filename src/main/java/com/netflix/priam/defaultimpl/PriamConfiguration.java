@@ -102,6 +102,7 @@ public class PriamConfiguration implements IConfiguration
     // If cassandra's system tablespace data files are in
     //    /mnt/cassandra/data/db/cassandra/system, then
     //    DEFAULT_DATA_LOCATION should be where?
+    // It should be in /mnt/cassandra/data/db/cassandra
     private final String DEFAULT_DATA_LOCATION = "/mnt/data/db/cassandra";
     private final String DEFAULT_COMMIT_LOG_LOCATION = "/mnt/data/commitlog";
     private final String DEFAULT_CACHE_LOCATION = "/var/lib/cassandra/saved_caches";
