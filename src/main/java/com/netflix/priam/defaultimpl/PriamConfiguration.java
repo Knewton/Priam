@@ -327,6 +327,11 @@ public class PriamConfiguration implements IConfiguration
     @Override
     public String getBackupPrefix()
     {
+        if (System.getProperty(CONFIG_BUCKET_NAME) != null) {
+            logger.debug(String.format("bucket name from System: %s", System.getProperty(CONFIG_BUCKET_NAME)));
+            return System.getProperty(CONFIG_BUCKET_NAME);
+        }
+
         return config.getProperty(CONFIG_BUCKET_NAME, DEFAULT_BUCKET_NAME);
     }
 
