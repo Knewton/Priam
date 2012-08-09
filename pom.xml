@@ -95,7 +95,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>r05</version>
+      <version>13.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.inject</groupId>
