@@ -40,6 +40,9 @@
     </license>
   </licenses>
 
+  <properties>
+    <jmockit.version>0.999.12</jmockit.version>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -161,7 +164,7 @@
     <dependency>
       <groupId>com.googlecode.jmockit</groupId>
       <artifactId>jmockit</artifactId>
-      <version>0.999.16</version>
+      <version>${jmockit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -250,7 +253,7 @@
         <configuration>
           <argLine>
             -Xms256m -Xmx1024m -XX:MaxPermSize=512m
-            -javaagent:"${settings.localRepository}"/com/googlecode/jmockit/jmockit/0.999.12/jmockit-0.999.12.jar
+            -javaagent:"${settings.localRepository}"/com/googlecode/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
           </argLine>
           <skipTests>false</skipTests>
         </configuration>
