@@ -3,6 +3,7 @@ package com.netflix.priam.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +22,7 @@ import javax.management.remote.JMXConnector;
 
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -170,8 +172,7 @@ public class SystemUtils
     {
         try
         {
-            byte[] digest = Files.getDigest(file, MessageDigest.getInstance("MD5"));
-            return toHex(digest);
+            return DigestUtils.md5Hex(new FileInputStream(file));
         }
         catch (Exception e)
         {
