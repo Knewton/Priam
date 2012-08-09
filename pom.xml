@@ -40,11 +40,6 @@
     </license>
   </licenses>
 
-  <scm>
-    <connection>scm:git:git@github.com:Netflix/Priam.git</connection>
-    <url>scm:git:git@github.com:Netflix/Priam.git</url>
-    <developerConnection>scm:git:git@github.com:Netflix/Priam.git</developerConnection>
-  </scm>
 
   <dependencies>
     <dependency>
