@@ -93,8 +93,8 @@ public class PriamConfiguration implements IConfiguration
     private final String INSTANCE_TYPE = SystemUtils.getDataFromUrl("http://169.254.169.254/latest/meta-data/instance-type");
     private static String ASG_NAME = System.getenv("ASG_NAME");
     private static String REGION = System.getenv("EC2_REGION");
-    
-    // Defaults 
+
+    // Defaults
     private final String DEFAULT_CLUSTER_NAME = "cass_cluster";
     private final String DEFAULT_DATA_LOCATION = "/var/lib/cassandra/data";
     private final String DEFAULT_COMMIT_LOG_LOCATION = "/var/lib/cassandra/commitlog";
@@ -196,13 +196,13 @@ public class PriamConfiguration implements IConfiguration
     }
 
     /**
-     * Get the fist 3 available zones in the region 
+     * Get the fist 3 available zones in the region
      */
     public void setDefaultRACList(String region){
         AmazonEC2 client = new AmazonEC2Client(new BasicAWSCredentials(provider.getAccessKeyId(), provider.getSecretAccessKey()));
         client.setEndpoint("ec2." + region + ".amazonaws.com");
         DescribeAvailabilityZonesResult res = client.describeAvailabilityZones();
-        List<String> zone = Lists.newArrayList(); 
+        List<String> zone = Lists.newArrayList();
         for(AvailabilityZone reg : res.getAvailabilityZones()){
             if( reg.getState().equals("available") )
                 zone.add(reg.getZoneName());
@@ -485,11 +485,11 @@ public class PriamConfiguration implements IConfiguration
     {
         return config.getProperty(CONFIG_ASG_NAME, "");
     }
-    
+
     @Override
     public String getACLGroupName()
     {
-    	return config.getProperty(CONFIG_ACL_GROUP_NAME, this.getAppName());
+        return config.getProperty(CONFIG_ACL_GROUP_NAME, this.getAppName());
     }
 
     @Override
