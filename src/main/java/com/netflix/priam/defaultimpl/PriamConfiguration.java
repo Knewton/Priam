@@ -96,7 +96,7 @@ public class PriamConfiguration implements IConfiguration
 
     // Defaults
     private final String DEFAULT_CLUSTER_NAME = "cass_cluster";
-    private final String DEFAULT_DATA_LOCATION = "/var/lib/cassandra/data";
+    private final String DEFAULT_DATA_LOCATION = "/mnt/data/db/cassandra";
     private final String DEFAULT_COMMIT_LOG_LOCATION = "/var/lib/cassandra/commitlog";
     private final String DEFAULT_CACHE_LOCATION = "/var/lib/cassandra/saved_caches";
     private final String DEFULT_ENDPOINT_SNITCH = "org.apache.cassandra.locator.Ec2Snitch";
