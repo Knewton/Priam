@@ -152,9 +152,6 @@ public class PriamConfiguration implements IConfiguration
         logger.info(String.format("setupEnvVars completed"));
         setDefaultRACList(REGION);
         logger.info(String.format("setDefaultRACList completed"));
-        for(String rac : getRacs()) {
-            logger.info(String.format("rac (configured az?): %s: ", rac));
-        }
         populateProps();
         logger.info(String.format("populateProps completed"));
         SystemUtils.createDirs(getBackupCommitLogLocation());
@@ -165,6 +162,9 @@ public class PriamConfiguration implements IConfiguration
         logger.info(String.format("create cache dir completed"));
         SystemUtils.createDirs(getDataFileLocation());
         logger.info(String.format("createDirs completed"));
+        for(String rac : getRacs()) {
+            logger.info(String.format("rac (configured az?): %s: ", rac));
+        }
     }
 
     private void setupEnvVars()
