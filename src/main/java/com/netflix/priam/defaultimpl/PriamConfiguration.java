@@ -149,12 +149,22 @@ public class PriamConfiguration implements IConfiguration
     public void intialize()
     {
         setupEnvVars();
+        logger.info(String.format("setupEnvVars completed"));
         setDefaultRACList(REGION);
+        logger.info(String.format("setDefaultRACList completed"));
+        for(String rac : getRacs()) {
+            logger.info(String.format("rac (configured az?): %s: ", rac));
+        }
         populateProps();
+        logger.info(String.format("populateProps completed"));
         SystemUtils.createDirs(getBackupCommitLogLocation());
+        logger.info(String.format("create backup commit log dir completed"));
         SystemUtils.createDirs(getCommitLogLocation());
+        logger.info(String.format("create commit log dir completed"));
         SystemUtils.createDirs(getCacheLocation());
+        logger.info(String.format("create cache dir completed"));
         SystemUtils.createDirs(getDataFileLocation());
+        logger.info(String.format("createDirs completed"));
     }
 
     private void setupEnvVars()
@@ -200,12 +210,19 @@ public class PriamConfiguration implements IConfiguration
      */
     public void setDefaultRACList(String region){
         AmazonEC2 client = new AmazonEC2Client(new BasicAWSCredentials(provider.getAccessKeyId(), provider.getSecretAccessKey()));
+        logger.info(String.format("Client connecting with set Id: %s, Key %s", provider.getAccessKeyId(), provider.getSecretAccessKey()));
         client.setEndpoint("ec2." + region + ".amazonaws.com");
+        logger.info(String.format("Setting the endpoint to ec2." + region + ".amazonaws.com"));
         DescribeAvailabilityZonesResult res = client.describeAvailabilityZones();
+        logger.info(String.format("Described the availability zones"));
         List<String> zone = Lists.newArrayList();
         for(AvailabilityZone reg : res.getAvailabilityZones()){
+            logger.info(String.format("AZ: %s: ", reg.getZoneName(), reg.getState()));
+            if( reg.getState().equals("available") ) {
             if( reg.getState().equals("available") )
                 zone.add(reg.getZoneName());
+                logger.info(String.format("Adding the zone %s", reg.getZoneName()));
+            }
             if( zone.size() == 3)
                 break;
         }
