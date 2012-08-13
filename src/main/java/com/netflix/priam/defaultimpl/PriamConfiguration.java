@@ -104,8 +104,8 @@ public class PriamConfiguration implements IConfiguration
 
     // rpm based. Can be modified for tar based.
     private final String DEFAULT_CASS_HOME_DIR = "/etc/cassandra";
-    private final String DEFAULT_CASS_START_SCRIPT = "/etc/init.d/cassandra start";
-    private final String DEFAULT_CASS_STOP_SCRIPT = "/etc/init.d/cassandra stop";
+    private final String DEFAULT_CASS_START_SCRIPT = "sv start cassandra";
+    private final String DEFAULT_CASS_STOP_SCRIPT = "sv stop cassandra";
     private final String DEFAULT_BACKUP_LOCATION = "backup";
     private final String DEFAULT_BUCKET_NAME = "cassandra-archive";
     private String DEFAULT_AVAILABILITY_ZONES = "";
