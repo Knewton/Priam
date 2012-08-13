@@ -234,7 +234,7 @@ public class PriamConfiguration implements IConfiguration
     {
         // End point is us-east-1
         AmazonSimpleDBClient simpleDBClient = new AmazonSimpleDBClient(new BasicAWSCredentials(provider.getAccessKeyId(), provider.getSecretAccessKey()));
-        config = new PriamProperties();
+        config = new PriamProperties(System.getProperties());
         config.put(CONFIG_ASG_NAME, ASG_NAME);
         config.put(CONFIG_REGION_NAME, REGION);
         String nextToken = null;
@@ -571,8 +571,15 @@ public class PriamConfiguration implements IConfiguration
 
     private class PriamProperties extends Properties
     {
-
         private static final long serialVersionUID = 1L;
+
+        PriamProperties() {
+            super();
+        }
+
+        PriamProperties(Properties arg0) {
+            super(arg0);
+        }
 
         public int getInteger(String prop, int defaultValue)
         {
