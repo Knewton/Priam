@@ -122,6 +122,10 @@ public class S3FileSystem implements IBackupFileSystem, S3FileSystemMBean
         InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(config.getBackupPrefix(), path.getRemotePath());
         InitiateMultipartUploadResult initResponse = s3Client.initiateMultipartUpload(initRequest);
         DataPart part = new DataPart(config.getBackupPrefix(), path.getRemotePath(), initResponse.getUploadId());
+        // docs.amazonwebservices.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/AmazonS3.html#setObjectAcl(java.lang.String, java.lang.String, com.amazonaws.services.s3.model.CannedAccessControlList)
+        // and
+        // http://docs.amazonwebservices.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/model/CannedAccessControlList.html
+        s3Client.setObjectAcl(config.getBackupPrefix(), peth.getRemotePath(), com.amazonaws.services.s3.model.BucketOwnerFullControl);
         List<PartETag> partETags = Lists.newArrayList();
         long chunkSize = config.getBackupChunkSize();
         if (path.getSize() > 0)
