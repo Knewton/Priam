@@ -214,7 +214,7 @@
         <version>2.2</version>
         <configuration>
           <packagingExcludes>WEB-INF/lib/servlet-api-*.jar, WEB-INF/lib/jetty-*.jar</packagingExcludes>
-          <warName>Priam</warName>
+          <warName>${project.artifactId}-${project.version}</warName>
         </configuration>
       </plugin>
 
