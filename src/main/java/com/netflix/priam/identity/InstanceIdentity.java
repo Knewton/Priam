@@ -146,7 +146,7 @@ public class InstanceIdentity
             // regions.
 
             int max = hash;
-            for (PriamInstance data : factory.getAllIds(config.getAppName()))
+            for (PriamInstance data : factory.getAllIds(config.getAppName())) // Get the Cassandra cluster name
                 max = (data.getRac().equals(config.getRac()) && (data.getId() > max)) ? data.getId() : max;
             int maxSlot = max - hash;
             int my_slot = 0;
@@ -181,7 +181,13 @@ public class InstanceIdentity
         }
         for (String loc : locMap.keySet())
             seeds.add(locMap.get(loc).get(0).getHostName());
-        seeds.remove(myInstance.getHostName());
+        // According to
+        // https://github.com/Netflix/Priam/issues/89, The below
+        // is what causes us to not be able to start a 1-node
+        // cluster.
+        if (config.getRacs().size() > 1) {
+            seeds.remove(myInstance.getHostName());
+        }
         return seeds;
     }
 
