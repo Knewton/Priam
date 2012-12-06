@@ -28,6 +28,7 @@ import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration.Rule;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -125,7 +126,7 @@ public class S3FileSystem implements IBackupFileSystem, S3FileSystemMBean
         // docs.amazonwebservices.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/AmazonS3.html#setObjectAcl(java.lang.String, java.lang.String, com.amazonaws.services.s3.model.CannedAccessControlList)
         // and
         // http://docs.amazonwebservices.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/model/CannedAccessControlList.html
-        s3Client.setObjectAcl(config.getBackupPrefix(), peth.getRemotePath(), com.amazonaws.services.s3.model.BucketOwnerFullControl);
+        s3Client.setObjectAcl(config.getBackupPrefix(), path.getRemotePath(), com.amazonaws.services.s3.model.CannedAccessControlList.BucketOwnerFullControl);
         List<PartETag> partETags = Lists.newArrayList();
         long chunkSize = config.getBackupChunkSize();
         if (path.getSize() > 0)
