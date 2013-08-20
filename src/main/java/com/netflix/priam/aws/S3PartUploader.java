@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.UploadPartRequest;
@@ -56,6 +57,7 @@ public class S3PartUploader extends RetryableCallable<Void>
     {
         CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(dataPart.getBucketName(), dataPart.getS3key(), dataPart.getUploadID(), partETags);
         client.completeMultipartUpload(compRequest);
+        client.setObjectAcl(dataPart.getBucketName(), dataPart.getS3key(), CannedAccessControlList.BucketOwnerFullControl);
     }
 
     // Abort
@@ -69,6 +71,8 @@ public class S3PartUploader extends RetryableCallable<Void>
     public Void retriableCall() throws AmazonClientException, BackupRestoreException
     {
         logger.debug("Picked up part " + dataPart.getPartNo() + " size " + dataPart.getPartData().length);
-        return uploadPart();
+        Void result = uploadPart();
+        logger.debug("Upload complete for part " + dataPart.getPartNo() + " size " + dataPart.getPartData().length);
+        return result;
     }
 }
