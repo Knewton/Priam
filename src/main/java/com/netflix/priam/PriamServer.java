@@ -13,6 +13,8 @@ import com.netflix.priam.utils.Sleeper;
 import com.netflix.priam.utils.SystemUtils;
 import com.netflix.priam.utils.TuneCassandra;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Start all tasks here - Property update task - Backup task - Restore task -
@@ -25,7 +27,8 @@ public class PriamServer
     private final IConfiguration config;
     private final InstanceIdentity id;
     private final Sleeper sleeper;
-
+    protected static final Logger logger = LoggerFactory.getLogger(PriamServer.class);
+    
     @Inject
     public PriamServer(IConfiguration config, PriamScheduler scheduler, InstanceIdentity id, Sleeper sleeper)
     {
@@ -36,7 +39,8 @@ public class PriamServer
     }
 
     public void intialize() throws Exception
-    {     
+    {
+        logger.info("The configuration loaded is {}", config.toString());
         if (id.getInstance().isOutOfService())
             return;
 

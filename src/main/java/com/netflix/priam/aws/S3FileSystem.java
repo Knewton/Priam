@@ -4,10 +4,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,7 +26,6 @@ import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration.Rule;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -123,10 +120,6 @@ public class S3FileSystem implements IBackupFileSystem, S3FileSystemMBean
         InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(config.getBackupPrefix(), path.getRemotePath());
         InitiateMultipartUploadResult initResponse = s3Client.initiateMultipartUpload(initRequest);
         DataPart part = new DataPart(config.getBackupPrefix(), path.getRemotePath(), initResponse.getUploadId());
-        // docs.amazonwebservices.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/AmazonS3.html#setObjectAcl(java.lang.String, java.lang.String, com.amazonaws.services.s3.model.CannedAccessControlList)
-        // and
-        // http://docs.amazonwebservices.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/model/CannedAccessControlList.html
-        s3Client.setObjectAcl(config.getBackupPrefix(), path.getRemotePath(), com.amazonaws.services.s3.model.CannedAccessControlList.BucketOwnerFullControl);
         List<PartETag> partETags = Lists.newArrayList();
         long chunkSize = config.getBackupChunkSize();
         if (path.getSize() > 0)
@@ -156,6 +149,7 @@ public class S3FileSystem implements IBackupFileSystem, S3FileSystemMBean
             new S3PartUploader(s3Client, part, partETags).abortUpload();
             throw new BackupRestoreException("Error uploading file " + path.getFileName(), e);
         }
+        logger.info(String.format("Finished uploading to %s/%s with chunk size %d", config.getBackupPrefix(), path.getRemotePath(), chunkSize));
     }
 
     @Override
