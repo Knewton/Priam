@@ -92,6 +92,7 @@ public class PriamConfiguration implements IConfiguration
     private final String INSTANCE_TYPE = SystemUtils.getDataFromUrl("http://169.254.169.254/latest/meta-data/instance-type");
     private static String ASG_NAME = System.getenv("ASG_NAME");
     private static String REGION = System.getenv("EC2_REGION");
+    private static String ASG_SPLIT_CHAR = "+";
 
     // Defaults
     private final String DEFAULT_CLUSTER_NAME = "cass_cluster";
@@ -237,7 +238,9 @@ public class PriamConfiguration implements IConfiguration
         config.put(CONFIG_ASG_NAME, ASG_NAME);
         config.put(CONFIG_REGION_NAME, REGION);
         String nextToken = null;
-        String appid = ASG_NAME.lastIndexOf('+') > 0 ? ASG_NAME.substring(0, ASG_NAME.indexOf('+')): ASG_NAME;
+        // The below is what is used to divide an ASG name into the
+        // cluster name vs. the availability zone name
+        String appid = ASG_NAME.lastIndexOf(ASG_SPLIT_CHAR) > 0 ? ASG_NAME.substring(0, ASG_NAME.indexOf(ASG_SPLIT_CHAR)): ASG_NAME;
         logger.info(String.format("appid used to fetch properties is: %s",appid));
         do
         {
