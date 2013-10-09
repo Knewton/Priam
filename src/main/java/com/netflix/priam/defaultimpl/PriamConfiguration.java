@@ -1,5 +1,9 @@
 package com.netflix.priam.defaultimpl;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -234,7 +238,22 @@ public class PriamConfiguration implements IConfiguration
     {
         // End point is us-east-1
         AmazonSimpleDBClient simpleDBClient = new AmazonSimpleDBClient(new BasicAWSCredentials(provider.getAccessKeyId(), provider.getSecretAccessKey()));
-        config = new PriamProperties(System.getProperties());
+        // START: ADDED BY TIM DYSINGER 2013-10-08 TO READ PROPS FROM
+        // AN EXTERNAL CHEF-TEMPLATED PROPERTIES FILE
+        config = new PriamProperties();
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream("/etc/priam/priam.properties");
+            config.load(fis);
+        } catch (FileNotFoundException e) {
+            logger.warn("Couldn't find a file in /etc/priam/priam.properties");
+        } catch (IOException e) {
+            logger.warn("Couldn't read the file found in /etc/priam/priam.properties");
+        } finally {
+            try { fis.close(); } catch (Exception e1) { /* nothing to do */ }
+        }
+        // END: ADDED BY TIM DYSINGER 2013-10-08 TO READ PROPS FROM AN
+        // EXTERNAL CHEF-TEMPLATED PROPERTIES FILE
         config.put(CONFIG_ASG_NAME, ASG_NAME);
         config.put(CONFIG_REGION_NAME, REGION);
         String nextToken = null;
