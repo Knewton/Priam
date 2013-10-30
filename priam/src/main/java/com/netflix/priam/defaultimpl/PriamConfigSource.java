@@ -12,14 +12,20 @@ import javax.inject.Inject;
  */
 public class PriamConfigSource extends CompositeConfigSource {
 
+  // @Inject
+  // public PriamConfigSource(final SimpleDBConfigSource simpleDBConfigSource,
+  //                          final PropertiesConfigSource propertiesConfigSource,
+  //                          final SystemPropertiesConfigSource systemPropertiesConfigSource) {
+  //   // this order was based off PriamConfigurations loading.  W/e loaded last could override, but with Composite, first
+  //   // has the highest priority.
+  //   super(simpleDBConfigSource,
+  //       propertiesConfigSource,
+  //       systemPropertiesConfigSource);
+  // }
   @Inject
-  public PriamConfigSource(final SimpleDBConfigSource simpleDBConfigSource,
-                           final PropertiesConfigSource propertiesConfigSource,
-                           final SystemPropertiesConfigSource systemPropertiesConfigSource) {
+  public PriamConfigSource(final PropertiesConfigSource propertiesConfigSource) {
     // this order was based off PriamConfigurations loading.  W/e loaded last could override, but with Composite, first
     // has the highest priority.
-    super(simpleDBConfigSource,
-        propertiesConfigSource,
-        systemPropertiesConfigSource);
+      super(propertiesConfigSource);
   }
 }
