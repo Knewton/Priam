@@ -15,23 +15,26 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Loads the 'Priam.properties' file as a source.
+ * By default priam uses Priam.properties.  It packs this into a jar.  Since we want
+ * a file on the filesystem to be our config source, we're going to use Knewton-Priam.properties
+ * instead.  If you use "Priam.properties", the file built into the jar will win.
+ * Loads the 'Knewton-Priam.properties' file as a source.
  */
-public class PropertiesConfigSource extends AbstractConfigSource 
+public class PropertiesConfigSource extends AbstractConfigSource
 {
     private static final Logger logger = LoggerFactory.getLogger(PropertiesConfigSource.class.getName());
 
-    private static final String DEFAULT_PRIAM_PROPERTIES = "Priam.properties";
+    private static final String DEFAULT_PRIAM_PROPERTIES = "Knewton-Priam.properties";
 
     private final Map<String, String> data = Maps.newConcurrentMap();
     private final String priamFile;
 
-    public PropertiesConfigSource() 
+    public PropertiesConfigSource()
     {
         this.priamFile = DEFAULT_PRIAM_PROPERTIES;
     }
 
-    public PropertiesConfigSource(final Properties properties) 
+    public PropertiesConfigSource(final Properties properties)
     {
         checkNotNull(properties);
         this.priamFile = DEFAULT_PRIAM_PROPERTIES;
@@ -39,43 +42,44 @@ public class PropertiesConfigSource extends AbstractConfigSource
     }
 
     @VisibleForTesting
-    PropertiesConfigSource(final String file) 
+    PropertiesConfigSource(final String file)
     {
         this.priamFile = checkNotNull(file);
     }
 
     @Override
-    public void intialize(final String asgName, final String region) 
+    public void intialize(final String asgName, final String region)
     {
         super.intialize(asgName, region);
         Properties properties = new Properties();
-        URL url = PropertiesConfigSource.class.getClassLoader().getResource(priamFile);
-        if (url != null) 
+        URL url = PropertiesConfigSource.class.getClassLoader().getResource(priamFile); // XXX
+        if (url != null)
         {
-            try 
+            try
             {
                 properties.load(url.openStream());
                 clone(properties);
-            } 
-            catch (IOException e) 
-            {
-                logger.info("No Priam.properties. Ignore!");
+                logger.info("Found Priam.properties at {}!", url);
             }
-        } 
-        else 
+            catch (IOException e)
+            {
+                logger.info("No Priam.properties. Ignored!");
+            }
+        }
+        else
         {
             logger.info("No Priam.properties. Ignore!");
         }
     }
 
     @Override
-    public String get(final String prop) 
+    public String get(final String prop)
     {
         return data.get(prop);
     }
 
     @Override
-    public void set(final String key, final String value) 
+    public void set(final String key, final String value)
     {
         Preconditions.checkNotNull(value, "Value can not be null for configurations.");
         data.put(key, value);
@@ -83,13 +87,13 @@ public class PropertiesConfigSource extends AbstractConfigSource
 
 
     @Override
-    public int size() 
+    public int size()
     {
         return data.size();
     }
 
     @Override
-    public boolean contains(final String prop) 
+    public boolean contains(final String prop)
     {
         return data.containsKey(prop);
     }
@@ -99,16 +103,17 @@ public class PropertiesConfigSource extends AbstractConfigSource
      *
      * @param properties to clone
      */
-    private void clone(final Properties properties) 
+    private void clone(final Properties properties)
     {
         if (properties.isEmpty()) return;
 
-        synchronized (properties) 
+        synchronized (properties)
         {
-            for (final String key : properties.stringPropertyNames()) 
+            for (final String key : properties.stringPropertyNames())
             {
                 final String value = properties.getProperty(key);
-                if (!Strings.isNullOrEmpty(value)) 
+                logger.info("File property clone: {}: {}", key, value);
+                if (!Strings.isNullOrEmpty(value))
                 {
                     data.put(key, value);
                 }

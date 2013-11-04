@@ -649,7 +649,7 @@ public class PriamConfiguration implements IConfiguration
     @Override
     public void setRestorePrefix(String prefix) {
 	    config.set(CONFIG_RESTORE_PREFIX, prefix);
-	    
+
     }
 
     @Override
@@ -687,7 +687,7 @@ public class PriamConfiguration implements IConfiguration
     {
     	return config.get(CONFIG_COMMITLOG_RESTORE_MAX, 10);
     }
-    
+
     @Override
     public boolean isVpcRing() {
         return config.get(CONFIG_VPC_RING, false);
@@ -734,5 +734,62 @@ public class PriamConfiguration implements IConfiguration
     public boolean isNativeTransportEnabled()
     {
         return config.get(CONFIG_NATIVE_PROTOCOL_ENABLED, false);
+    }
+
+    @Override
+    public String toString() {
+        // TODO: the list of configs here are incomplete and do not account for configuratioon that has changed
+        // between 1.0 and 1.2
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append(CONFIG_ACL_GROUP_NAME + "=").append(getACLGroupName())
+                .append("," + CONFIG_CLUSTER_NAME + "=").append(getAppName())
+                .append("," + CONFIG_ASG_NAME + "=").append(getASGName())
+                .append("," + CONFIG_BACKUP_CHUNK_SIZE + "=").append(getBackupChunkSize())
+                .append("," + CONFIG_CL_BK_LOCATION + "=").append(getBackupCommitLogLocation())
+                .append("," + CONFIG_BACKUP_HOUR + "=").append(getBackupHour())
+                .append("," + CONFIG_S3_BASE_DIR + "=").append(getBackupLocation())
+                .append("," + CONFIG_BUCKET_NAME + "=").append(getBackupPrefix())
+                .append("," + CONFIG_BACKUP_RETENTION + "=").append(getBackupRacs())
+                .append("," + CONFIG_BACKUP_RETENTION + "=").append(getBackupRetentionDays())
+                .append("," + CONFIG_BOOTCLUSTER_NAME + "=").append(getBootClusterName())
+                .append("," + CONFIG_SAVE_CACHE_LOCATION + "=").append(getCacheLocation())
+                .append("," + CONFIG_CASS_HOME_DIR + "=").append(getCassHome())
+                .append("," + CONFIG_CASS_START_SCRIPT + "=").append(getCassStartupScript())
+                .append("," + CONFIG_CASS_STOP_SCRIPT + "=").append(getCassStopScript())
+                .append("," + CONFIG_CL_LOCATION + "=").append(getCommitLogLocation())
+                .append("," + CONFIG_COMPACTION_THROUHPUT + "=").append(getCompactionThroughput())
+                .append("," + CONFIG_DATA_LOCATION + "=").append(getDataFileLocation())
+                .append("," + CONFIG_REGION_NAME + "=").append(getDC())
+                .append("," + CONFIG_NEW_MAX_HEAP_SIZE + INSTANCE_TYPE + "=")
+                .append(getHeapNewSize())
+                .append("," + CONFIG_MAX_HEAP_SIZE + INSTANCE_TYPE + "=").append(getHeapSize())
+                .append("," + PUBLIC_IP + "=").append(getHostIP())
+                .append("," + PUBLIC_HOSTNAME + "=").append(getHostname())
+                .append("," + CONFIG_IN_MEMORY_COMPACTION_LIMIT + "=")
+                .append(getInMemoryCompactionLimit())
+                .append("," + INSTANCE_ID + "=").append(getInstanceName())
+                .append("," + CONFIG_JMX_LISTERN_PORT_NAME + "=").append(getJmxPort())
+                .append("," + CONFIG_RESTORE_THREADS + "=").append(getMaxBackupDownloadThreads())
+                .append("," + CONFIG_BACKUP_THREADS + "=").append(getMaxBackupUploadThreads())
+                .append("," + CONFIG_DIRECT_MAX_HEAP_SIZE + INSTANCE_TYPE + "=")
+                .append(getMaxDirectMemory())
+                .append("," + CONFIG_MAX_HINT_WINDOW_IN_MS + "=").append(getMaxHintWindowInMS())
+                .append("," + CONFIG_MEMTABLE_TOTAL_SPACE + "=").append(getMemtableTotalSpaceMB())
+                .append("," + CONFIG_MULTITHREADED_COMPACTION + "=")
+                .append(getMultithreadedCompaction())
+                .append("," + CONFIG_AVAILABILITY_ZONES + "=").append(getRacs())
+                .append("," + CONFIG_RESTORE_KEYSPACES + "=").append(getRestoreKeySpaces())
+                .append("," + CONFIG_RESTORE_PREFIX + "=").append(getRestorePrefix())
+                .append("," + CONFIG_AUTO_RESTORE_SNAPSHOTNAME + "=").append(getRestoreSnapshot())
+                .append("," + CONFIG_SEED_PROVIDER_NAME + "=").append(getSeedProviderName())
+                .append("," + CONFIG_ENDPOINT_SNITCH + "=").append(getSnitch())
+                .append("," + CONFIG_SSL_STORAGE_LISTERN_PORT_NAME + "=")
+                .append(getSSLStoragePort())
+                .append("," + CONFIG_STORAGE_LISTERN_PORT_NAME + "=").append(getStoragePort())
+                .append("," + CONFIG_STREAMING_THROUGHPUT_MB + "=")
+                .append(getStreamingThroughputMB())
+                .append("," + CONFIG_THRIFT_LISTEN_PORT_NAME + "=").append(getThriftPort())
+                .append("," + CONFIG_THROTTLE_UPLOAD_PER_SECOND + "=").append(getUploadThrottle());
+        return strBuilder.toString();
     }
 }
