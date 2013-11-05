@@ -33,16 +33,16 @@ import com.netflix.priam.scheduler.TaskTimer;
 /**
  * this class will associate an Public IP's with a new instance so they can talk
  * across the regions.
- * 
+ *
  * Requirement: 1) Nodes in the same region needs to be able to talk to each
  * other. 2) Nodes in other regions needs to be able to talk to the others in
  * the other region.
- * 
+ *
  * Assumption: 1) IPriamInstanceFactory will provide the membership... and will
  * be visible across the regions 2) IMembership amazon or any other
  * implementation which can tell if the instance is part of the group (ASG in
  * amazons case).
- * 
+ *
  */
 @Singleton
 public class UpdateSecuritySettings extends Task
@@ -71,21 +71,31 @@ public class UpdateSecuritySettings extends Task
     public void execute()
     {
         // if seed dont execute.
-        int port = config.getSSLStoragePort();
-        List<String> acls = membership.listACL(port, port);
+        int port_ssl = config.getSSLStoragePort();
+        int port_clear = config.getStoragePort();
+        List<String> acls_ssl = membership.listACL(port_ssl, port_ssl);
+        List<String> acls_clear = membership.listACL(port_ssl, port_ssl);
         List<PriamInstance> instances = factory.getAllIds(config.getAppName());
 
         // iterate to add...
-        List<String> add = Lists.newArrayList();
+        List<String> add_ssl = Lists.newArrayList();
+        List<String> add_clear = Lists.newArrayList();
         for (PriamInstance instance : factory.getAllIds(config.getAppName()))
         {
             String range = instance.getHostIP() + "/32";
-            if (!acls.contains(range))
-                add.add(range);
+            if (!acls_ssl.contains(range))
+                add_ssl.add(range);
+            if (!acls_clear.contains(range))
+                add_clear.add(range);
         }
-        if (add.size() > 0)
+        if (add_ssl.size() > 0)
         {
-            membership.addACL(add, port, port);
+            membership.addACL(add_ssl, port_ssl, port_ssl);
+            firstTimeUpdated = true;
+        }
+        if (add_clear.size() > 0)
+        {
+            membership.addACL(add_clear, port_clear, port_clear);
             firstTimeUpdated = true;
         }
 
@@ -98,13 +108,24 @@ public class UpdateSecuritySettings extends Task
         }
 
         // iterate to remove...
-        List<String> remove = Lists.newArrayList();
-        for (String acl : acls)
+        List<String> remove_ssl = Lists.newArrayList();
+        for (String acl : acls_ssl)
             if (!currentRanges.contains(acl)) // if not found then remove....
-                remove.add(acl);
-        if (remove.size() > 0)
+                remove_ssl.add(acl);
+
+        List<String> remove_clear = Lists.newArrayList();
+        for (String acl : acls_clear)
+            if (!currentRanges.contains(acl)) // if not found then remove....
+                remove_clear.add(acl);
+
+        if (remove_ssl.size() > 0)
         {
-            membership.removeACL(remove, port, port);
+            membership.removeACL(remove_ssl, port_ssl, port_ssl);
+            firstTimeUpdated = true;
+        }
+        if (remove_clear.size() > 0)
+        {
+            membership.removeACL(remove_clear, port_clear, port_clear);
             firstTimeUpdated = true;
         }
     }
