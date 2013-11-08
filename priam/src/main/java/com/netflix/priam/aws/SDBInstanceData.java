@@ -57,19 +57,19 @@ public class SDBInstanceData
     }
     public static final String DOMAIN = "InstanceIdentity";
     public static final String ALL_QUERY = "select * from " + DOMAIN + " where " + Attributes.APP_ID + "='%s'";
-    public static final String INSTANCE_QUERY = "select * from " + DOMAIN + " where " + Attributes.APP_ID + "='%s ' and " + Attributes.LOCATION + "='%s ' and " + Attributes.ID + "='%d'";
+    public static final String INSTANCE_QUERY = "select * from " + DOMAIN + " where " + Attributes.APP_ID + "='%s' and " + Attributes.LOCATION + "='%s' and " + Attributes.ID + "='%d'";
 
     private final ICredential provider;
-    
+
     @Inject
     public SDBInstanceData(ICredential provider)
     {
-        this.provider = provider;       
+        this.provider = provider;
     }
 
     /**
      * Get the instance details from SimpleDB
-     * 
+     *
      * @param app Cluster name
      * @param id Node ID
      * @return the node with the given {@code id}, or {@code null} if no such node exists
@@ -86,7 +86,7 @@ public class SDBInstanceData
 
     /**
      * Get the set of all nodes in the cluster
-     * 
+     *
      * @param app Cluster name
      * @return the set of all instances in the given {@code app}
      */
@@ -113,7 +113,7 @@ public class SDBInstanceData
 
     /**
      * Create a new instance entry in SimpleDB
-     * 
+     *
      * @param instance
      * @throws AmazonServiceException
      */
@@ -126,7 +126,7 @@ public class SDBInstanceData
 
     /**
      * Register a new instance. Registration will fail if a prior entry exists
-     * 
+     *
      * @param instance
      * @throws AmazonServiceException
      */
@@ -143,7 +143,7 @@ public class SDBInstanceData
 
     /**
      * Deregister instance (same as delete)
-     * 
+     *
      * @param instance
      * @throws AmazonServiceException
      */
@@ -187,7 +187,7 @@ public class SDBInstanceData
 
     /**
      * Convert a simpledb item to PriamInstance
-     * 
+     *
      * @param item
      * @return
      */
@@ -224,7 +224,7 @@ public class SDBInstanceData
     {
         return instance.getApp() + "_" + instance.getDC() + "_" + instance.getId();
     }
-    
+
     private AmazonSimpleDBClient getSimpleDBClient(){
         //Create per request
         return new AmazonSimpleDBClient(provider.getAwsCredentialProvider());
