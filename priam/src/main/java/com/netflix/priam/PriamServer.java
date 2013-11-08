@@ -59,7 +59,7 @@ public class PriamServer
     }
 
     public void intialize() throws Exception
-    {
+    {     
         logger.info("The configuration loaded is {}", config.toString());
         if (id.getInstance().isOutOfService())
             return;
@@ -93,11 +93,11 @@ public class PriamServer
 
         /*
          *  Run the delayed task (after 10 seconds) to Monitor Cassandra
-         *  If Restore option is chosen, then Running Cassandra instance is stopped
+         *  If Restore option is chosen, then Running Cassandra instance is stopped 
          *  Hence waiting for Cassandra to stop
          */
         scheduler.addTaskWithDelay(CassandraMonitor.JOBNAME,CassandraMonitor.class, CassandraMonitor.getTimer(), CASSANDRA_MONITORING_INITIAL_DELAY);
-
+        
         // Start the snapshot backup schedule - Always run this. (If you want to
         // set it off, set backup hour to -1)
         if (config.getBackupHour() >= 0 && (CollectionUtils.isEmpty(config.getBackupRacs()) || config.getBackupRacs().contains(config.getRac())))
@@ -108,12 +108,12 @@ public class PriamServer
             if (config.isIncrBackup())
             		scheduler.addTask(IncrementalBackup.JOBNAME, IncrementalBackup.class, IncrementalBackup.getTimer());
         }
-
+       
         if (config.isBackingUpCommitLogs())
         {
         	scheduler.addTask(CommitLogBackupTask.JOBNAME, CommitLogBackupTask.class, CommitLogBackupTask.getTimer(config));
         }
-
+        
         //Set cleanup
         scheduler.addTask(UpdateCleanupPolicy.JOBNAME, UpdateCleanupPolicy.class, UpdateCleanupPolicy.getTimer());
 

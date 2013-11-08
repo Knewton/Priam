@@ -649,7 +649,7 @@ public class PriamConfiguration implements IConfiguration
     @Override
     public void setRestorePrefix(String prefix) {
 	    config.set(CONFIG_RESTORE_PREFIX, prefix);
-
+            
     }
 
     @Override
@@ -687,7 +687,7 @@ public class PriamConfiguration implements IConfiguration
     {
     	return config.get(CONFIG_COMMITLOG_RESTORE_MAX, 10);
     }
-
+    
     @Override
     public boolean isVpcRing() {
         return config.get(CONFIG_VPC_RING, false);
