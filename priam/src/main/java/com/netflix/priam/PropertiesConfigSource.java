@@ -53,24 +53,18 @@ public class PropertiesConfigSource extends AbstractConfigSource
     public void intialize(final String asgName, final String region)
     {
         super.intialize(asgName, region);
-        Properties properties = new Properties();
-        URL url = PropertiesConfigSource.class.getClassLoader().getResource(priamFile); // XXX
-        if (url != null)
-        {
-            try
-            {
-                properties.load(url.openStream());
-                clone(properties);
-                logger.info("Found Priam.properties at {}!", url);
-            }
-            catch (IOException e)
-            {
-                logger.info("No Priam.properties. Ignored!");
-            }
-        }
-        else
-        {
-            logger.info("No Priam.properties. Ignore!");
+        Properties config = new Properties();
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(this.priamFile);
+            config.load(fis);
+            clone(config);
+        } catch (FileNotFoundException e) {
+            logger.warn("Couldn't find a file in " + this.priamFile);
+        } catch (IOException e) {
+            logger.warn("Couldn't read the file found in " + this.priamFile);
+        } finally {
+            try { fis.close(); } catch (Exception e1) { /* nothing to do */ }
         }
     }
 
